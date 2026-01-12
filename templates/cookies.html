@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie Security Analyzer</title>
+
+<link rel="stylesheet" href="/static/style.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <nav class="navbar">
+        <div class="logo">🛡️ Phishing Detector</div>
+        <ul class="nav-links">
+            <li><i class="bi bi-house"></i><a href="/">Home</a></li>
+            <li><i class="bi bi-cookie"></i><a href="/cookies">Cookies</a></li>
+            <li><a href="javascript:void(0);" id="darkModeToggle"><i class="bi bi-moon" id="darkIcon"></i></a></li>
+        </ul>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="scanner">
+        <h1>Cookie Security Analyzer</h1>
+        <form method="post">
+            <input type="url" name="url" placeholder="https://example.com" required>
+            <button type="submit">Analyze Cookies</button>
+        </form>
+    </section>
+
+    {% if result %}
+    <div class="results-grid">
+
+        <!-- COOKIE TABLE -->
+        <div class="card">
+            <h3><i class="bi bi-list-check"></i> Cookies Found</h3>
+            {% if result.cookies %}
+            <table class="cookie-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Domain</th>
+                        <th>Secure</th>
+                        <th>HttpOnly</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in result.cookies %}
+                    <tr class="{{ 'suspicious' if c.suspicious else 'safe' }}">
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.domain }}</td>
+                        <td>{{ c.secure }}</td>
+                        <td>{{ c.httponly }}</td>
+                        <td>{{ 'Suspicious ⚠️' if c.suspicious else 'Safe ✅' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No cookies detected may be suspicious (site may use JavaScript or advanced protections).</p>
+            {% endif %}
+        </div>
+
+    </div>
+    {% endif %}
+
+</main>
+
+<footer>
+    <p>© 2026 Phishing Detection System</p>
+</footer>
+
+<script src="/static/script.js"></script>
+{% if result %}
+<script>
+// ---------------- COOKIE RISK METER ----------------
+document.addEventListener("DOMContentLoaded", () => {
+    const cookieRiskFill = document.getElementById("cookieRiskFill");
+    const cookieRiskValue = document.getElementById("cookieRiskValue");
+
+    if(cookieRiskFill && cookieRiskValue){
+        let riskScore = 5; // default medium
+        const riskStr = "{{ result.risk }}";
+        if(riskStr === "Low") riskScore = 2;
+        else if(riskStr === "High") riskScore = 8;
+        else riskScore = 5; // Unknown
+
+        let r = 0;
+        const anim = setInterval(()=>{
+            cookieRiskValue.textContent = r;
+            cookieRiskFill.style.width = (r*10) + "%";
+            if(r<=3) cookieRiskFill.style.background="green";
+            else if(r<=6) cookieRiskFill.style.background="yellow";
+            else cookieRiskFill.style.background="red";
+
+            if(r>=riskScore) clearInterval(anim);
+            r++;
+        },100);
+    }
+});
+</script>
+{% endif %}
+
+</body>
+</html>
