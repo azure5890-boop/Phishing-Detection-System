@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 import joblib
 import pandas as pd
 from urllib.parse import urlparse
@@ -12,6 +12,7 @@ from pycaret.classification import predict_model
 # FLASK APP
 # ==============================
 app = Flask(__name__)
+app.secret_key = "azure_phishing_detector_secret"
 
 # ==============================
 # LOAD ML MODEL
@@ -125,7 +126,11 @@ def get_explainability(features, meta, url):
 # ==============================
 @app.route("/")
 def index():
-    return render_template("index.html", is_phish=None)
+    return render_template(
+        "index.html",
+        is_phish=None,
+        last_url=session.get("last_url")
+    )
 
 # ==============================
 # URL SCAN
@@ -134,6 +139,10 @@ def index():
 def check():
     try:
         url = request.form.get("url", "").strip()
+
+        # 🔴 STORE LAST SCANNED URL
+        session["last_url"] = url
+
         features, meta = extract_url_features(url)
         df = pd.DataFrame([features])
 
@@ -149,15 +158,20 @@ def check():
             prob=round(final_score, 2),
             reasons=get_explainability(features, meta, url),
             risk_score_10=score_to_scale(final_score),
-            rule_hits=rule_hits
+            rule_hits=rule_hits,
+            last_url=url
         )
 
     except Exception as e:
         print("❌ Scan Error:", e)
-        return render_template("index.html", is_phish=True)
+        return render_template(
+            "index.html",
+            is_phish=True,
+            last_url=session.get("last_url")
+        )
 
 # ==============================
-# COOKIE ANALYSIS (FIXED)
+# COOKIE ANALYSIS
 # ==============================
 def analyze_cookies(cookies):
     if not cookies or len(cookies) == 0:
@@ -217,14 +231,13 @@ def cookies():
                 follow_redirects=True,
                 timeout=10
             )
-
             result = analyze_cookies(resp.cookies.jar)
 
-        except Exception as e:
+        except Exception:
             result = {
                 "risk": 0,
                 "cookies": [],
-                "message": "Cookies could not be accessed (site blocked automated requests)."
+                "message": "Cookies could not be accessed."
             }
 
     return render_template("cookies.html", result=result)

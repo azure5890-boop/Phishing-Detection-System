@@ -33,7 +33,17 @@
         <p>AI + Security Rules + Cookie Analysis</p>
     </section>
 
+    <!-- 🔎 SCANNER SECTION -->
     <section class="scanner">
+
+        <!-- ⭐ LAST SCANNED URL -->
+        {% if last_url %}
+        <div class="last-scanned-inline">
+            🔎 <strong>Last scanned:</strong>
+            <span title="{{ last_url }}">{{ last_url }}</span>
+        </div>
+        {% endif %}
+
         <form action="/check" method="post">
             <input type="url" name="url" placeholder="https://example.com" required>
             <button type="submit">Analyze URL</button>
