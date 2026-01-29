@@ -122,4 +122,4 @@ This project is open-source and free to use for educational purposes.
 
 If you like this project, consider giving it a ⭐ on GitHub!
 
-⚠️ Disclaimer: This tool is not a replacement for professional security systems. We are updating it 
+⚠️ Disclaimer: This tool is not a replacement for professional security systems. We are updating it.
