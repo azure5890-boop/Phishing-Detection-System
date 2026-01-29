@@ -122,4 +122,8 @@ This project is open-source and free to use for educational purposes.
 
 If you like this project, consider giving it a ⭐ on GitHub!
 
+<<<<<<< HEAD
 ⚠️ Disclaimer: This tool is not a replacement for professional security systems. We are updating it.
+=======
+⚠️ Disclaimer: This tool is not a replacement for professional security systems. We are updating it.
+>>>>>>> 3362db8375b3e90af2a50e04e116d3dc82cf9417
